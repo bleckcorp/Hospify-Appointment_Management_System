@@ -1,5 +1,6 @@
 package com.hospify.appointment.entity;
 
+import com.hospify.appointment.utils.AppUtil;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -52,7 +53,8 @@ public abstract class BaseEntity implements Serializable {
     @PrePersist
     protected void onCreate() {
         this.createdDate = new Timestamp(System.currentTimeMillis());
-     // you can use to properly audit   this.createdBy = AppUtil.getPrincipal();
+     // you can use to properly audit
+//       this.createdBy = AppUtil.getPrincipal();
     }
 
     @PreUpdate
