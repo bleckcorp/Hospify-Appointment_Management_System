@@ -10,6 +10,6 @@ import lombok.Data;
 public class ReminderResponse {
     private String message;
     private String notificationDateTime;
-    private String appointmentId;
+    private Long appointmentId;
     private String reminderStatus;
 }

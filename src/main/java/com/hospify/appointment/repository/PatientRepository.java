@@ -3,5 +3,5 @@ package com.hospify.appointment.repository;
 import com.hospify.appointment.entity.Patient;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface PatientRepository extends JpaRepository<Patient, String> {
+public interface PatientRepository extends JpaRepository<Patient, Long> {
 }

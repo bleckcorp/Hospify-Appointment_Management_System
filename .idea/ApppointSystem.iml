@@ -63,7 +63,6 @@
     <orderEntry type="library" name="Maven: org.springframework:spring-tx:6.0.8" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-beans:6.0.8" level="project" />
     <orderEntry type="library" name="Maven: jakarta.annotation:jakarta.annotation-api:2.1.1" level="project" />
-    <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:2.0.7" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-aspects:6.0.8" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-security:3.0.6" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter:3.0.6" level="project" />
@@ -142,5 +141,10 @@
     <orderEntry type="library" name="Maven: org.springframework:spring-context-support:6.0.8" level="project" />
     <orderEntry type="library" name="Maven: org.eclipse.angus:jakarta.mail:1.0.0" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: org.eclipse.angus:angus-activation:2.0.0" level="project" />
+    <orderEntry type="library" name="Maven: org.quartz-scheduler:quartz:2.3.1" level="project" />
+    <orderEntry type="library" name="Maven: com.mchange:mchange-commons-java:0.2.15" level="project" />
+    <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:2.0.7" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.13.2" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.hamcrest:hamcrest-core:2.2" level="project" />
   </component>
 </module>
