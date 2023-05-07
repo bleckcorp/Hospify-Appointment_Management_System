@@ -14,7 +14,6 @@ import lombok.*;
 @Builder
 @Table(name = "insurance_information")
 public class InsuranceInformation extends BaseEntity{
-
     @OneToOne
     @JoinColumn(name = "patient_id")
     private Patient patient;

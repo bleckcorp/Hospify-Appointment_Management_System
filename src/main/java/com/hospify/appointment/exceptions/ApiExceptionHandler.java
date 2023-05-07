@@ -89,4 +89,16 @@ public class ApiExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-}
+
+    @ExceptionHandler(ResourceAlreadyExistsException.class)
+    protected ResponseEntity<AppResponse<Object>> handleResourceAlreadyExistsException(ResourceAlreadyExistsException ex) {
+        AppResponse<Object> response = AppResponse.builder()
+                .isSuccessful(false)
+                .message("An error occurred, check message below")
+                .result(ex.getMessage())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    }
