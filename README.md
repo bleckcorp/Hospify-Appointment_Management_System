@@ -5,9 +5,13 @@ This module is part of the Hospify Project. It allows patients to book appointme
 ## Technologies Used
 
 - SpringBoot
-- Twilio API
+- SMS API integration
 - SpringSecurity
 - Postgres SQL
+- Whatsapp API
+- Quartz Scheduling
+
+
 
 
 ## Application Features
