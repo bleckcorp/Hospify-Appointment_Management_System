@@ -1,5 +1,7 @@
 package com.hospify.appointment.entity;
 
+import com.hospify.appointment.constants.ReminderStatus;
+import com.hospify.appointment.constants.ReminderTime;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -19,9 +21,10 @@ public class Reminder extends BaseEntity{
 
     private String message;
 
-    private LocalDateTime date;
+    private LocalDateTime notificationDateTime;
 
     @ManyToOne
     @JoinColumn(name = "appointment_id")
     private Appointment appointment;
+    private ReminderStatus reminderStatus;
 }

@@ -44,6 +44,7 @@ public class PatientProfile extends BaseEntity{
     @Column(name = "emergency_contact_phone_number")
     private String emergencyContactPhoneNumber;
 
+
     @OneToOne
     @JoinColumn(name = "patient_id")
     private Patient patient;

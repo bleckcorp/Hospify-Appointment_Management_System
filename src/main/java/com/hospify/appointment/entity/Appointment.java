@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -18,7 +19,7 @@ import java.util.Set;
 public class Appointment extends BaseEntity{
 
     @Column(name = "appointment_date")
-    private LocalDate appointmentDate;
+    private LocalDateTime appointmentDateTime;
 
     @ManyToMany
     @JoinTable(name = "doctor_appointment",
@@ -39,6 +40,7 @@ public class Appointment extends BaseEntity{
     private AppointmentStatus status;
 
     private String reason;
+
 
 
 }
