@@ -2,17 +2,24 @@ package com.hospify.appointment.controller;
 
 
 import com.hospify.appointment.dtos.request.DoctorRegistrationRequestDto;
+import com.hospify.appointment.dtos.request.LogInRequest;
 import com.hospify.appointment.dtos.request.PatientRegistrationRequestDto;
 import com.hospify.appointment.dtos.response.AppResponse;
 import com.hospify.appointment.dtos.response.DoctorRegistrationResponse;
 import com.hospify.appointment.dtos.response.PatientRegistrationResponse;
+import com.hospify.appointment.dtos.response.TokenResponse;
 import com.hospify.appointment.service.UserService;
+import com.hospify.appointment.utils.SecurityUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -27,6 +34,21 @@ import java.security.Principal;
 public class AuthController {
 
     private final UserService userService;
+    private final AuthenticationManager authenticationManager;
+
+
+    @PostMapping("/login")
+    public ResponseEntity<?> authenticateAndGetToken(@RequestBody LogInRequest request) {
+        log.info("controller login: login user :: [{}] ::", request.getEmail());
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+
+        if (authentication.isAuthenticated()) {
+            TokenResponse tokenResponse = SecurityUtil.generateToken(authentication);
+            return ResponseEntity.status(200).body(AppResponse.builder().statusCode("00").isSuccessful(true).result(tokenResponse).message("Authenticated").build());
+        } else {
+            throw new UsernameNotFoundException("invalid user request !");
+        }
+    }
 
     @PostMapping(path = "/register/patient")
     public ResponseEntity<AppResponse<?>> registerPatient(@RequestBody @Valid final PatientRegistrationRequestDto registrationRequestDto) throws IOException {
@@ -61,9 +83,9 @@ public class AuthController {
 
 
     @GetMapping("/resendVerificationToken")
-    public ResponseEntity<AppResponse<?>> resendVerificationToken(Principal principal, HttpServletRequest request) throws IOException {
+    public ResponseEntity<AppResponse<?>> resendVerificationToken(Principal principal, String channel) throws IOException {
 
-        boolean response = userService.resendNewToken(principal);
+        boolean response = userService.resendNewToken(principal,channel);
 
         return response ? ResponseEntity.ok().body(AppResponse.buildSuccess("OTP sent to your email"))
                 : ResponseEntity.ok().body(

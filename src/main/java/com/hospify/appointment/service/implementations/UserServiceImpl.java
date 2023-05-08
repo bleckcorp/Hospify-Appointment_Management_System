@@ -101,6 +101,38 @@ public class UserServiceImpl implements UserService {
         return null;
     }
 
+    @Override
+    public boolean resendNewToken(Principal principal, String channel) throws IOException {
+
+
+        if (principal instanceof Doctor doctor) {
+
+            if(doctor.getIsVerified()){
+                throw new CustomException("User is already verified", HttpStatus.BAD_REQUEST);
+            }
+            String token = generateVerificationToken(doctor);
+
+            if (channel.equalsIgnoreCase("email")) {
+                sendRegistrationConfirmationEmail(doctor.getEmail(),token);
+            }
+            else if (channel.equalsIgnoreCase("sms")) {
+                sendRegistrationConfirmationSms(doctor.getContactInformation().getPhone(),token);
+            }
+            else if (channel.equalsIgnoreCase("whatsapp")) {
+                sendRegistrationConfirmationWhatsapp(doctor.getContactInformation().getPhone(),token);
+            }
+        }
+        else if (principal instanceof Patient patient) {
+            if(patient.getIsVerified()){
+                throw new CustomException("User is already verified", HttpStatus.BAD_REQUEST);
+            }
+            String token = generateVerificationToken(patient);
+            sendRegistrationConfirmationEmail(patient.getEmail(),token);
+        }
+
+        return true;
+    }
+
     private String validateDoctorVerificationToken(VerificationToken verificationToken) {
         Doctor doctor = verificationToken.getDoctor();
         Calendar cal = Calendar.getInstance();
@@ -150,27 +182,12 @@ public class UserServiceImpl implements UserService {
         return "Account verified successfully";
     }
 
-    @Override
-    public boolean resendNewToken(Principal principal) throws IOException {
 
 
-        if (principal instanceof Doctor doctor) {
+    private void sendRegistrationConfirmationWhatsapp(String phone, String token) {
+    }
 
-            if(doctor.getIsVerified()){
-                throw new CustomException("User is already verified", HttpStatus.BAD_REQUEST);
-            }
-            String token = generateVerificationToken(doctor);
-            sendRegistrationConfirmationEmail(doctor.getEmail(),token);
-        }
-        else if (principal instanceof Patient patient) {
-            if(patient.getIsVerified()){
-                throw new CustomException("User is already verified", HttpStatus.BAD_REQUEST);
-            }
-            String token = generateVerificationToken(patient);
-            sendRegistrationConfirmationEmail(patient.getEmail(),token);
-        }
-
-        return true;
+    private void sendRegistrationConfirmationSms(String phone, String token) {
     }
 
 
