@@ -6,6 +6,7 @@ import com.hospify.appointment.constants.RoleEnum;
 import com.hospify.appointment.dtos.request.DoctorRegistrationRequestDto;
 import com.hospify.appointment.dtos.request.EmailDto;
 import com.hospify.appointment.dtos.request.PatientRegistrationRequestDto;
+import com.hospify.appointment.dtos.request.SmsDTo;
 import com.hospify.appointment.dtos.response.DoctorRegistrationResponse;
 import com.hospify.appointment.dtos.response.PatientRegistrationResponse;
 import com.hospify.appointment.entity.*;
@@ -14,7 +15,9 @@ import com.hospify.appointment.exceptions.ResourceAlreadyExistsException;
 import com.hospify.appointment.exceptions.ResourceNotFoundException;
 import com.hospify.appointment.repository.*;
 import com.hospify.appointment.service.EmailService;
+import com.hospify.appointment.service.SmsService;
 import com.hospify.appointment.service.UserService;
+import com.hospify.appointment.utils.SmsTemplates;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -39,6 +42,8 @@ import java.util.concurrent.locks.ReentrantLock;
 public class UserServiceImpl implements UserService , UserDetailsService {
     private final ContactInformationRepository contactInformationRepository;
     private final DoctorRepository doctorRepository;
+
+    private final SmsService smsService;
 
     private final PatientRepository patientRepository;
     private final PatientProfileRepository patientProfileRepository;
@@ -80,7 +85,8 @@ public class UserServiceImpl implements UserService , UserDetailsService {
             }
             Patient patient = saveNewPatient(registrationRequestDto);
             String token = generateVerificationToken(patient);
-            sendRegistrationConfirmationEmail(registrationRequestDto.getEmail(), token);
+//            sendRegistrationConfirmationEmail(registrationRequestDto.getEmail(), token);
+            smsService.sendSingleSms(SmsTemplates.createVerificationSMS(patient.getFirstName(),patient.getPhoneNumber(), token));
             return buildRegistrationResponse(patient);
         } finally {
             lock.unlock();
