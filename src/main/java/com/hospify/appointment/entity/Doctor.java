@@ -1,5 +1,7 @@
 package com.hospify.appointment.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.hospify.appointment.constants.RoleEnum;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,6 +27,7 @@ public class Doctor extends BaseEntity{
     @Column(name = "email", unique = true, length = 100)
     private String email;
 
+
     @Column(name = "specialization", length = 100)
     private String specialization;
 
@@ -33,6 +36,17 @@ public class Doctor extends BaseEntity{
 
     @OneToOne(mappedBy = "doctor", cascade = CascadeType.ALL)
     private ContactInformation contactInformation;
+
+    @Enumerated(EnumType.STRING)
+    private RoleEnum role;
+
+    private Boolean isVerified;
+
+    @JsonIgnore
+    @Column(name = "password", length = 200)
+    private String password;
+
+
 
     @ManyToMany(mappedBy = "doctors")
     private Set<Appointment> appointments = new HashSet<>();
