@@ -9,12 +9,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 public class AppConfig {
 
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(10);
     }
     @Bean
     public ModelMapper modelMapper() {
-        return new ModelMapper();
+        ModelMapper modelMapper = new ModelMapper();
+//        modelMapper.getConfiguration().setFieldMatchingEnabled(true);
+//        modelMapper.getConfiguration().setFieldAccessLevel(org.modelmapper.config.Configuration.AccessLevel.PRIVATE);
+//        modelMapper.getConfiguration().setSkipNullEnabled(true);
+        return modelMapper;
     }
 }

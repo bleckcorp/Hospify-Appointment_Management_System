@@ -19,6 +19,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +36,7 @@ import java.util.concurrent.locks.ReentrantLock;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserService , UserDetailsService {
     private final ContactInformationRepository contactInformationRepository;
     private final DoctorRepository doctorRepository;
 
@@ -47,6 +51,25 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        log.info("userService loadUserByUserName - email :: [{}] ::", email);
+
+        Patient patient = patientRepository.findByEmail(email).orElse(null);
+
+        if (patient != null) {
+            Collection<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority(patient.getRole().name()));
+            return new org.springframework.security.core.userdetails.User(patient.getEmail(), patient.getPassword(), authorities);
+        }
+        Doctor doctor = doctorRepository.findByEmail(email).orElse(null);
+        if (doctor != null) {
+            Collection<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority(doctor.getRole().name()));
+            return new org.springframework.security.core.userdetails.User(doctor.getEmail(), doctor.getPassword(), authorities);
+        }
+        throw new UsernameNotFoundException("User not found with email: " + email);
+
+    }
+
+    @Override
     @Transactional
     public PatientRegistrationResponse registerPatient(PatientRegistrationRequestDto registrationRequestDto) throws IOException {
         lock.lock();
@@ -57,7 +80,7 @@ public class UserServiceImpl implements UserService {
             }
             Patient patient = saveNewPatient(registrationRequestDto);
             String token = generateVerificationToken(patient);
-            sendRegistrationConfirmationEmail(registrationRequestDto.getEmail(),token);
+            sendRegistrationConfirmationEmail(registrationRequestDto.getEmail(), token);
             return buildRegistrationResponse(patient);
         } finally {
             lock.unlock();
@@ -76,13 +99,12 @@ public class UserServiceImpl implements UserService {
             Doctor doctor = saveNewDoctor(registrationRequestDto);
 
             String token = generateVerificationToken(doctor);
-            sendRegistrationConfirmationEmail(registrationRequestDto.getEmail(),token);
+            sendRegistrationConfirmationEmail(registrationRequestDto.getEmail(), token);
             return buildRegistrationResponse(doctor);
         } finally {
             lock.unlock();
         }
     }
-
 
 
     @Override
@@ -92,10 +114,9 @@ public class UserServiceImpl implements UserService {
                 verificationTokenRepository.findByToken(token)
                         .orElseThrow(() -> new ResourceNotFoundException("Token does not Exist : " + token));
 
-        if (verificationToken.getDoctor()!= null)  {
+        if (verificationToken.getDoctor() != null) {
             return validateDoctorVerificationToken(verificationToken);
-        }
-        else if (verificationToken.getPatient()!= null) {
+        } else if (verificationToken.getPatient() != null) {
             return validatePatientVerificationToken(verificationToken);
         }
         return null;
@@ -107,27 +128,24 @@ public class UserServiceImpl implements UserService {
 
         if (principal instanceof Doctor doctor) {
 
-            if(doctor.getIsVerified()){
+            if (doctor.getIsVerified()) {
                 throw new CustomException("User is already verified", HttpStatus.BAD_REQUEST);
             }
             String token = generateVerificationToken(doctor);
 
             if (channel.equalsIgnoreCase("email")) {
-                sendRegistrationConfirmationEmail(doctor.getEmail(),token);
+                sendRegistrationConfirmationEmail(doctor.getEmail(), token);
+            } else if (channel.equalsIgnoreCase("sms")) {
+                sendRegistrationConfirmationSms(doctor.getContactInformation().getPhone(), token);
+            } else if (channel.equalsIgnoreCase("whatsapp")) {
+                sendRegistrationConfirmationWhatsapp(doctor.getContactInformation().getPhone(), token);
             }
-            else if (channel.equalsIgnoreCase("sms")) {
-                sendRegistrationConfirmationSms(doctor.getContactInformation().getPhone(),token);
-            }
-            else if (channel.equalsIgnoreCase("whatsapp")) {
-                sendRegistrationConfirmationWhatsapp(doctor.getContactInformation().getPhone(),token);
-            }
-        }
-        else if (principal instanceof Patient patient) {
-            if(patient.getIsVerified()){
+        } else if (principal instanceof Patient patient) {
+            if (patient.getIsVerified()) {
                 throw new CustomException("User is already verified", HttpStatus.BAD_REQUEST);
             }
             String token = generateVerificationToken(patient);
-            sendRegistrationConfirmationEmail(patient.getEmail(),token);
+            sendRegistrationConfirmationEmail(patient.getEmail(), token);
         }
 
         return true;
@@ -183,7 +201,6 @@ public class UserServiceImpl implements UserService {
     }
 
 
-
     private void sendRegistrationConfirmationWhatsapp(String phone, String token) {
     }
 
@@ -194,7 +211,9 @@ public class UserServiceImpl implements UserService {
     private PatientRegistrationResponse buildRegistrationResponse(Patient patient) {
         return modelMapper.map(patient, PatientRegistrationResponse.class);
     }
+
     private DoctorRegistrationResponse buildRegistrationResponse(Doctor doctor) {
+
         return modelMapper.map(doctor, DoctorRegistrationResponse.class);
     }
 
@@ -220,6 +239,7 @@ public class UserServiceImpl implements UserService {
 
         return savedDoctor;
     }
+
     private Patient saveNewPatient(PatientRegistrationRequestDto registrationRequestDto) {
         Patient patient = new Patient();
 
@@ -259,12 +279,13 @@ public class UserServiceImpl implements UserService {
 
         return doctorRepository.findByEmail(email).isPresent();
     }
+
     private boolean doesPatientAlreadyExist(String email) {
 
         return patientRepository.findByEmail(email).isPresent();
     }
 
-    private void sendRegistrationConfirmationEmail( String email, String token) throws IOException {
+    private void sendRegistrationConfirmationEmail(String email, String token) throws IOException {
         emailService.sendEmail(EmailDto.builder()
                 .sender("noreply@gmail.com")
                 .subject("Please Activate Your Account")
@@ -276,21 +297,23 @@ public class UserServiceImpl implements UserService {
     }
 
     private String generateVerificationToken(Object user) {
-        String token = UUID.randomUUID().toString();
-        VerificationToken verificationToken = new VerificationToken();
+        Random random = new Random();
+        int otp = 100_000 + random.nextInt(900_000);
+
+        String token = String.valueOf(otp);
+        VerificationToken verificationToken = null;
         if (user instanceof Doctor) {
-            verificationToken.setDoctor((Doctor) user);
+            verificationToken = new VerificationToken(token, (Doctor) user);
+        } else if (user instanceof Patient) {
+            verificationToken = new VerificationToken(token, (Patient) user);
         }
-        else if (user instanceof Patient) {
-            verificationToken.setPatient((Patient) user);
+        log.info("Saving token to database {}", verificationToken);
+        if (verificationToken == null) {
+            throw new CustomException("Token is null", HttpStatus.BAD_REQUEST);}
+            verificationTokenRepository.save(verificationToken);
+            return token;
         }
-        verificationToken.setToken(token);
 
-        log.info("Saving token to database");
-        verificationTokenRepository.save(verificationToken);
-        return token;
+
     }
-
-
-}
 
