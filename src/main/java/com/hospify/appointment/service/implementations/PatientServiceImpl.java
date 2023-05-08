@@ -39,7 +39,7 @@ import java.util.concurrent.locks.ReentrantLock;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class PatientServiceImpl implements PatientService, UserDetailsService {
+public class PatientServiceImpl implements PatientService {
 
     private final PatientRepository patientRepository;
     private final PatientProfileRepository patientProfileRepository;
@@ -49,17 +49,6 @@ public class PatientServiceImpl implements PatientService, UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
 
-
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        log.info("userService loadUserByUserName - email :: [{}] ::", email);
-
-        Patient patient = patientRepository.findPatientByEmail(email)
-                .orElseThrow(() -> {throw new ResourceNotFoundException("user does not exist");});
-
-        Collection<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority(patient.getRole().name()));
-        return new org.springframework.security.core.userdetails.User(patient.getEmail(), patient.getPassword(), authorities);
-    }
 
 }
 

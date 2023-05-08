@@ -21,19 +21,9 @@ import java.util.Collections;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class DoctorServiceImpl implements DoctorService, UserDetailsService {
+public class DoctorServiceImpl implements DoctorService {
 
     private final DoctorRepository doctorRepository;
 
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        log.info("userService loadUserByUserName - email :: [{}] ::", email);
-
-        Doctor doctor = doctorRepository.findByEmail(email)
-                .orElseThrow(() -> {throw new ResourceNotFoundException("user does not exist");});
-
-        Collection<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority(doctor.getRole().name()));
-        return new org.springframework.security.core.userdetails.User(doctor.getEmail(), doctor.getPassword(), authorities);
-    }
 
 }
