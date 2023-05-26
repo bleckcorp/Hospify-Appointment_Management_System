@@ -83,9 +83,9 @@ public class AuthController {
 
 
     @GetMapping("/resendVerificationToken")
-    public ResponseEntity<AppResponse<?>> resendVerificationToken(Principal principal, String channel) throws IOException {
+    public ResponseEntity<AppResponse<?>> resendVerificationToken(String channel) throws IOException {
 
-        boolean response = userService.resendNewToken(principal,channel);
+        boolean response = userService.resendNewToken(channel);
 
         return response ? ResponseEntity.ok().body(AppResponse.buildSuccess("OTP sent to your email"))
                 : ResponseEntity.ok().body(

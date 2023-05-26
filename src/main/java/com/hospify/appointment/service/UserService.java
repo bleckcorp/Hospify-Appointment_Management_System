@@ -17,5 +17,5 @@ public interface UserService {
 
     DoctorRegistrationResponse registerDoctor(DoctorRegistrationRequestDto registrationRequestDto) throws IOException;
 
-    boolean resendNewToken(Principal principal, String channel) throws IOException;
+    boolean resendNewToken(String channel) throws IOException;
 }
