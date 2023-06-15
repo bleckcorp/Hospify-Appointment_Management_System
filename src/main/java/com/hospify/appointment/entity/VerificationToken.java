@@ -24,36 +24,25 @@ public class VerificationToken {
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(
-            name = "patient_id",
+            name = "user_id",
             updatable = false,
-            foreignKey = @ForeignKey(name= "FK_PATIENT_VERIFY_TOKEN")
+            foreignKey = @ForeignKey(name= "FK_USER_VERIFY_TOKEN")
     )
-    private Doctor doctor;
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(
-            name = "doctor_id",
-            updatable = false,
-            foreignKey = @ForeignKey(name= "FK_DOCTOR_VERIFY_TOKEN")
-    )
-    private Patient patient;
+    private AppUser user;
+
     public VerificationToken(String token) {
         super();
         this.token = token;
         this.expirationTime = calculateExpirationDate(EXPIRATION_TIME);
     }
 
-    public VerificationToken(String token, Patient patient) {
+    public VerificationToken(String token, AppUser user) {
         super();
         this.token = token;
-        this.patient = patient;
+        this.user = user;
         this.expirationTime = calculateExpirationDate(EXPIRATION_TIME);
     }
-    public VerificationToken(String token, Doctor doctor) {
-        super();
-        this.token = token;
-        this.doctor = doctor;
-        this.expirationTime = calculateExpirationDate(EXPIRATION_TIME);
-    }
+
     private Date calculateExpirationDate(int expirationTime) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(new Date().getTime());

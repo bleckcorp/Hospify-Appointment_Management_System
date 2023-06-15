@@ -15,28 +15,12 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "patient")
-public class Patient extends BaseEntity{
+@DiscriminatorValue("PATIENT")
+public class Patient extends AppUser{
 
-    @Column(name = "first_name", length = 100)
-    private String firstName;
-
-    @Column(name = "last_name", length = 100)
-    private String lastName;
-
-    @Column(name = "email", unique = true, length = 100)
-    private String email;
-
-    @Column(name = "phone_number", length = 16)
-    private String phoneNumber;
 
     @Column(name = "address", length = 100)
     private String address;
-
-    private Boolean isVerified;
-    @JsonIgnore
-    @Column(name = "password", length = 200)
-    private String password;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 30)
@@ -54,6 +38,4 @@ public class Patient extends BaseEntity{
     @ManyToMany(mappedBy = "patients")
     private Set<Appointment> appointment = new HashSet<>();
 
-    @Enumerated(EnumType.STRING)
-    private RoleEnum role;
 }

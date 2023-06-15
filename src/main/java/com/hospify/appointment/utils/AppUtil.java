@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.hospify.appointment.entity.AppUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -46,13 +47,14 @@ public class AppUtil {
         }
     }
 
-    public static String getPrincipal() {
+    public static AppUser getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return "system";
+        if (authentication == null) {
+            throw new IllegalArgumentException("No user logged in");
         }
-        return authentication.getName();
+        return (AppUser) authentication.getPrincipal();
     }
+
 
 
 }

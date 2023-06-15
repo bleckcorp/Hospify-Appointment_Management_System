@@ -15,7 +15,6 @@ import com.hospify.appointment.exceptions.CustomException;
 import com.hospify.appointment.exceptions.ResourceAlreadyExistsException;
 import com.hospify.appointment.exceptions.ResourceNotFoundException;
 import com.hospify.appointment.repository.PatientProfileRepository;
-import com.hospify.appointment.repository.PatientRepository;
 import com.hospify.appointment.repository.VerificationTokenRepository;
 import com.hospify.appointment.service.EmailService;
 import com.hospify.appointment.service.PatientService;
@@ -41,7 +40,6 @@ import java.util.concurrent.locks.ReentrantLock;
 @RequiredArgsConstructor
 public class PatientServiceImpl implements PatientService {
 
-    private final PatientRepository patientRepository;
     private final PatientProfileRepository patientProfileRepository;
     private final EmailService emailService;
     private final VerificationTokenRepository verificationTokenRepository;

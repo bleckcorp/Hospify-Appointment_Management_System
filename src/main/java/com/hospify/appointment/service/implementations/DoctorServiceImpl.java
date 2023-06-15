@@ -4,7 +4,6 @@ import com.hospify.appointment.dtos.response.PatientRegistrationResponse;
 import com.hospify.appointment.entity.Doctor;
 import com.hospify.appointment.entity.Patient;
 import com.hospify.appointment.exceptions.ResourceNotFoundException;
-import com.hospify.appointment.repository.DoctorRepository;
 import com.hospify.appointment.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,8 +21,6 @@ import java.util.Collections;
 @Service
 @RequiredArgsConstructor
 public class DoctorServiceImpl implements DoctorService {
-
-    private final DoctorRepository doctorRepository;
 
 
 }
